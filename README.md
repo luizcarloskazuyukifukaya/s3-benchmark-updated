@@ -1,5 +1,5 @@
 # Introduction
-This repository is the updated version of what has been available from Wasabi Technologies LLC and the original repository.
+This repository is the updated version of what has been available from Wasabi Technologies LLC.
 The following are the updates to the original source code:
 * The log file is named with timestamp (where it was static with name benchmark.log)
 * The log file is with output with comma (CSV format) so it can be used for easier analytics with Excell
@@ -16,11 +16,19 @@ To leverage this tool, the following prerequisites apply:
  
 # Bash script template
 s3-benchmark-all.sh.template is provided so you copy and modify the parameters value based on your environment.
+
 You should copy and change it to be executable with the following commands:
 ```
 ubuntu:~/s3-benchmark-updated$ cp s3-benchmark-all.sh.template s3-benchmark-all.sh
 ubuntu:~/s3-benchmark-updated$ chmod +x s3-benchmark-all.sh
 ```
+# Specify the Access Key and Secret Key
+The following are the part that at least should be specified before executing the script.
+```
+ACCESS_KEY=<Access key value here>
+SECRET_KEY=<Secret key value here>
+```
+Once specified you should be able to execute it.
 
 # Bash script execution
 s3-benchmark-all.sh should be executable if you follow the instruction above.

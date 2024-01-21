@@ -16,7 +16,7 @@ THREAD_NUM=50
 ENDPOINT_URL=https://s3.ap-northeast-1.wasabisys.com
 REGION=ap-northeast-1
 
-#File size (xK or xM or xG or xT)
+#File size (xK or xM or xG )
 FILE_SIZE=1M
 
 # Number of times to repeat test (loops)
