@@ -1,13 +1,13 @@
 # Introduction
 This repository is the updated version of what has been available from Wasabi Technologies LLC.
 The following are the updates to the original source code:
-* The log file is named with timestamp (where it was static with name benchmark.log)
-* The log file is with output with comma (CSV format) so it can be used for easier analytics with Excell
-* Added a bash script template where the options can be specified easly
+* The log file is named with timestamp (where it was static with the name being benchmark.log)
+* The log file is with comma separation (CSV format) so it can be used for easier analytics (example, with Excell)
+* Added a bash script template with it the options can be specified easily
 
 # Wasabi Original s3-benchmark repository
 The repository can be found at https://github.com/wasabi-tech/s3-benchmark. 
-For details please refer to this repository as most of the source code is not modified from the original version.
+For details please refer to this repository as most part of the source code is not modified from the original version.
 
 # Prerequisites
 To leverage this tool, the following prerequisites apply:
@@ -57,4 +57,4 @@ benchmark_<REGION_NAME>_<yyyymmddThhmmss>.log
 ```
 
 # Note
-This version is NOT provided officially from Wasabi Technologies LLC, so if you have issue, it is recommended to try execute the original version first. If still you have the issue, please contact Wasabi technical support (support@wasabi.com).
+This version is NOT provided officially from Wasabi Technologies LLC, so if you have an issue, it is recommended to try execute the original version first. If still you have the issue, please contact Wasabi technical support (support@wasabi.com).
