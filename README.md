@@ -52,8 +52,9 @@ Loop 2,GET time,61.2,secs,objects,3696,speed,60.4M,B/sec,60.4,operations/sec.,Sl
 Loop 2,DELETE time,0.2,secs,,,,,,1245.9,deletes/sec.,Slowdowns,0 
 ```
 The log file name is created based on the region, date and time with the following format:
-
+```
 benchmark_<REGION_NAME>_<yyyymmddThhmmss>.log
+```
 
 # Note
 This version is NOT provided officially from Wasabi Technologies LLC, so if you have issue, it is recommended to try execute the original version first. If still you have the issue, please contact Wasabi technical support (support@wasabi.com).
