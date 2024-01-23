@@ -198,6 +198,21 @@ func deleteAllObjects() {
 	}
 }
 
+// Delete a bucket
+func deleteBucket(ignore_errors bool) {
+	// Get a client
+	client := getS3Client()
+	// Delete our bucket (may already exist without error)
+	in := &s3.DeleteBucketInput{Bucket: aws.String(bucket)}
+	if _, err := client.DeleteBucket(in); err != nil {
+		if ignore_errors {
+			log.Printf("WARNING: deleteBucket %s error, ignoring %v", bucket, err)
+		} else {
+			log.Fatalf("FATAL: Unable to delete bucket %s (is your access and secret correct?): %v", bucket, err)
+		}
+	}
+}
+
 // canonicalAmzHeaders -- return the x-amz headers canonicalized
 func canonicalAmzHeaders(req *http.Request) string {
 	// Parse out all x-amz headers
@@ -458,5 +473,11 @@ func main() {
 			loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count, region), false)
 
 	}
+	// Delete the bucket created for the benchmark
+	// make sure to delete all the objects first
+	deleteAllObjects()
+	// Delete the bucket
+	deleteBucket(true)
+
 	// All done
 }
