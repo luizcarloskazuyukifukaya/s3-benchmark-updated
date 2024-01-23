@@ -18,8 +18,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-//	"github.com/pivotal-golang/bytefmt"
-  "code.cloudfoundry.org/bytefmt"
+	//"github.com/pivotal-golang/bytefmt"
+	// Details here: https://github.com/cloudfoundry/bytefmt/blob/main/README.md
+	"code.cloudfoundry.org/bytefmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -43,15 +44,45 @@ var object_data []byte
 var object_data_md5 string
 var running_threads, upload_count, download_count, delete_count, upload_slowdown_count, download_slowdown_count, delete_slowdown_count int32
 var endtime, upload_finish, download_finish, delete_finish time.Time
+
 // log filename
 var logfilename string
+// CSV filename
+var csvfilename string
 
+// log file output
 func logit(msg string) {
+	var log_msg string
+
 	fmt.Println(msg)
-	//logfile, _ := os.OpenFile("benchmark.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	// Use the global logfilename variable where the dynamic filename is defined based on the time of the execution
 	logfile, _ := os.OpenFile(logfilename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
 	if logfile != nil {
-		logfile.WriteString("\"" + time.Now().Format(http.TimeFormat) + "\"" + ", " + msg + "\n")
+		log_msg = time.Now().Format(http.TimeFormat) + ": " + msg + "\n"
+		logfile.WriteString(log_msg)
+		logfile.Close()
+	}
+}
+
+// CSV file output
+// ignore_timestamp to be used to output log without timestamp (true)
+func csvit(msg string, ignore_timestamp bool) {
+	var csv_msg string
+
+	// No output to termial
+	//fmt.Println(msg)
+
+	//logfile, _ := os.OpenFile("benchmark.log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	// Use the global logfilename variable where the dynamic filename is defined based on the time of the execution
+	logfile, _ := os.OpenFile(csvfilename, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if logfile != nil {
+		if ignore_timestamp {
+			csv_msg = msg + "\n"
+		} else {
+			// CSV format to import of the logs for data analysis
+			csv_msg = "\"" + time.Now().Format(http.TimeFormat) + "\"" + ", " + msg + "\n"
+		}
+		logfile.WriteString(csv_msg)
 		logfile.Close()
 	}
 }
@@ -288,7 +319,6 @@ func runDelete(thread_num int) {
 }
 
 func main() {
-	// Hello
 	//fmt.Println("Wasabi benchmark program v2.0")
 	fmt.Println("Wasabi benchmark program v2.1")
 
@@ -320,12 +350,19 @@ func main() {
 		log.Fatalf("Invalid -z argument for object size: %v", err)
 	}
 
-  // define the log filename
-  logfilename = "benchmark_" + region + "_" + time.Now().Format("20060102T150405") + ".log"
-	
-  // Echo the parameters
-	logit(fmt.Sprintf("Parameters, url=%s, bucket=%s, region=%s, duration=%d, threads=%d, loops=%d, size=%s",
+	// define the log filename
+	var filename string
+	filename = "benchmark_" + region + "_" + time.Now().Format("20060102T150405")
+	// set global variables
+	logfilename = filename + ".log"
+	csvfilename = filename + ".csv"
+
+	// log the parameters
+	logit(fmt.Sprintf("Parameters { url=%s, bucket=%s, region=%s, duration=%d, threads=%d, loops=%d, size=%s }",
 		url_host, bucket, region, duration_secs, threads, loops, sizeArg))
+
+	// CSV Headers
+	csvit("DateTime,LoopNumber,Operation,OperationTime(sec),Objects,Speed(B/sec),Operation/sec,Slowdowns,region", true)
 
 	// Initialize data for the bucket
 	object_data = make([]byte, object_size)
@@ -364,8 +401,14 @@ func main() {
 		upload_time := upload_finish.Sub(starttime).Seconds()
 
 		bps := float64(uint64(upload_count)*object_size) / upload_time
-		logit(fmt.Sprintf("Loop %d,PUT time,%.1f,secs,objects,%d,speed,%s,B/sec,%.1f,operations/sec.,Slowdowns,%d",
+		// log Upload
+		logit(fmt.Sprintf("Loop %d: PUT time=%.1f secs, objects %d, speed %s B/sec, %.1f operations/sec., Slowdowns=%d",
 			loop, upload_time, upload_count, bytefmt.ByteSize(uint64(bps)), float64(upload_count)/upload_time, upload_slowdown_count))
+		//logit(fmt.Sprintf("%d,PUT,%.1f,%d,%s,%.1f,%d,%s",
+		//	loop, upload_time, upload_count, bytefmt.ByteSize(uint64(bps)), float64(upload_count)/upload_time, upload_slowdown_count, region), false)
+		// CSV Upload
+		csvit(fmt.Sprintf("%d,PUT,%.1f,%d,%.1f,%.1f,%d,%s",
+			loop, upload_time, upload_count, bps, float64(upload_count)/upload_time, upload_slowdown_count, region), false)
 
 		// Run the download case
 		running_threads = int32(threads)
@@ -382,8 +425,14 @@ func main() {
 		download_time := download_finish.Sub(starttime).Seconds()
 
 		bps = float64(uint64(download_count)*object_size) / download_time
-		logit(fmt.Sprintf("Loop %d,GET time,%.1f,secs,objects,%d,speed,%s,B/sec,%.1f,operations/sec.,Slowdowns,%d",
+		// log Download
+		logit(fmt.Sprintf("Loop %d: GET time=%.1f secs, objects %d, speed %s B/sec, %.1f operations/sec., Slowdowns=%d",
 			loop, download_time, download_count, bytefmt.ByteSize(uint64(bps)), float64(download_count)/download_time, download_slowdown_count))
+		//logit(fmt.Sprintf("%d,GET,%.1f,%d,%s,%.1f,%d,%s",
+		//	loop, download_time, download_count, bytefmt.ByteSize(uint64(bps)), float64(download_count)/download_time, download_slowdown_count, region), false)
+		// CSV Download
+		csvit(fmt.Sprintf("%d,GET,%.1f,%d,%.1f,%.1f,%d,%s",
+			loop, download_time, download_count, bps, float64(download_count)/download_time, download_slowdown_count, region), false)
 
 		// Run the delete case
 		running_threads = int32(threads)
@@ -399,9 +448,15 @@ func main() {
 		}
 		delete_time := delete_finish.Sub(starttime).Seconds()
 
-		logit(fmt.Sprintf("Loop %d,DELETE time,%.1f,secs,,,,,,%.1f,deletes/sec.,Slowdowns,%d",
+		// log Delete
+		logit(fmt.Sprintf("Loop %d: DELETE time=%.1f secs, %.1f deletes/sec., Slowdowns=%d",
 			loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count))
-	}
+		//logit(fmt.Sprintf("Loop %d,DELETE time,%.1f,secs,,,,,,%.1f,deletes/sec.,Slowdowns,%d",
+		//	loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count), false)
+		// CSV Delete
+		csvit(fmt.Sprintf("%d,DELETE,%.1f,,,%.1f,%d,%s",
+			loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count, region), false)
 
+	}
 	// All done
 }
