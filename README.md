@@ -1,10 +1,10 @@
 # Introduction
 This repository is the updated version of what has been available from Wasabi Technologies LLC.
 The following are the updates to the original source code:
-* 2 files are created as the result of the execution (benchmark-*.log and benchmark-*.csv)
+* 2 files are created as the result of the execution (benchmark-\*.log and benchmark-\*.csv)
 * The log file is named with timestamp (where it was static with the name being benchmark.log)
-* The CSV file is with comma separation so it can be used for easier analytics (example, with Excell)
-* Added a bash script template with it the options can be specified easily
+* The CSV file is with comma separation so it can be used for easier analytics (e.g. with Excel)
+* Added a bash script template so with it the options can be specified easier
 
 # Wasabi Original s3-benchmark repository
 The repository can be found at https://github.com/wasabi-tech/s3-benchmark. 
@@ -16,7 +16,7 @@ To leverage this tool, the following prerequisites apply:
 * Editor tool such as vim or any text editor (to modify the bash script template)    
  
 # Bash script template
-s3-benchmark-all.sh.template is provided so you copy and modify the parameters value based on your environment.
+*s3-benchmark-all.sh.template* is provided so you copy and modify the parameters value based on your environment.
 
 You should copy and change it to be executable with the following commands:
 ```
@@ -32,7 +32,7 @@ SECRET_KEY=<Secret key value here>
 Once specified you should be able to execute it.
 
 # Bash script execution
-s3-benchmark-all.sh should be executable if you follow the instruction above.
+*s3-benchmark-all.sh* should be executable if you follow the instruction above.
 Make sure you modified the bash script so the S3 Access Key and the Secret Key are provided.
 You should be able to execute the bash script as the following:
 ```
@@ -88,4 +88,4 @@ benchmark_<REGION_NAME>_<yyyymmddThhmmss>.csv
 The log file and CSV file should be the same except the file extension.
 
 # Note
-This version is NOT provided officially from Wasabi Technologies LLC, so if you have an issue, it is recommended to try execute the original version first. If still you have the issue, please contact Wasabi technical support (support@wasabi.com).
+This version is *NOT* provided officially from Wasabi Technologies LLC, so if you have an issue, it is recommended to try execute the original version first. If still you have the issue, please contact Wasabi technical support (support@wasabi.com).
