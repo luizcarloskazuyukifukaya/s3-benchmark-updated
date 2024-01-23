@@ -108,6 +108,20 @@ func createBucket(ignore_errors bool) {
 	}
 }
 
+func deleteBucket(ignore_errors bool) {
+	// Get a client
+	client := getS3Client()
+	// Delete our bucket (may already exist without error)
+	in := &s3.DeleteBucketInput{Bucket: aws.String(bucket)}
+	if _, err := client.DeleteBucket(in); err != nil {
+		if ignore_errors {
+			log.Printf("WARNING: deleteBucket %s error, ignoring %v", bucket, err)
+		} else {
+			log.Fatalf("FATAL: Unable to delete bucket %s (is your access and secret correct?): %v", bucket, err)
+		}
+	}
+}
+
 func deleteAllObjects() {
 	// Get a client
 	client := getS3Client()
@@ -375,7 +389,7 @@ func main() {
 		logit(fmt.Sprintf("Loop %d: GET time %.1f secs, objects = %d, speed = %sB/sec, %.1f operations/sec. Slowdowns = %d",
 			loop, download_time, download_count, bytefmt.ByteSize(uint64(bps)), float64(download_count)/download_time, download_slowdown_count))
 
-		// Run the delete case
+		// Run the delete case:
 		running_threads = int32(threads)
 		starttime = time.Now()
 		endtime = starttime.Add(time.Second * time.Duration(duration_secs))
@@ -393,5 +407,9 @@ func main() {
 			loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count))
 	}
 
+	//  Delete all the objects and then the bucket
+	deleteAllObjects()
+	deleteBucket(true)
+	
 	// All done
 }
