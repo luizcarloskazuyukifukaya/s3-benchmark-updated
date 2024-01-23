@@ -6,21 +6,28 @@
 BUCKET_NAME=s3-benchmark-bucket-$RANDOM
 
 # Access Key
-ACCESS_KEY=<Access key value here>
-SECRET_KEY=<Secret key value here>
+ACCESS_KEY=N4X1J2JLPP929K2VCLPH
+SECRET_KEY=gRKU0BNsUOW9qZ73BDCOTUKz8CPblnDXlVeXCkTR
 
 # Number of threads
 THREAD_NUM=50
 
 # Endpoint and Region
-ENDPOINT_URL=https://s3.ap-northeast-1.wasabisys.com
 REGION=ap-northeast-1
+ENDPOINT_URL=https://s3.$REGION.wasabisys.com
 
-#File size (xK or xM or xG )
+#File size (xK or xM or xG or xT)
 FILE_SIZE=1M
 
 # Number of times to repeat test (loops)
-LOOP_NUM=2
+LOOP_NUM=1
 
 # Excution with the given parameters
-./s3-benchmark-updated -b $BUCKET_NAME -a $ACCESS_KEY -s $SECRET_KEY -t $THREAD_NUM -l $LOOP_NUM -u $ENDPOINT_URL -r $REGION -z $FILE_SIZE
+./s3-benchmark-updated -b $BUCKET_NAME \
+                       -a $ACCESS_KEY \
+                       -s $SECRET_KEY \
+                       -t $THREAD_NUM \
+                       -l $LOOP_NUM \
+                       -u $ENDPOINT_URL \
+                       -r $REGION \
+                       -z $FILE_SIZE
