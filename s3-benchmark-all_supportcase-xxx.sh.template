@@ -23,31 +23,28 @@ FILE_SIZE=1M
 LOOP_NUM=1
 
 # Interval seconds
-INTERVAL_SECS=180 #(3 minutes)
+INTERVAL_SECS=60 #(1 minutes)
+#INTERVAL_SECS=180 #(3 minutes)
 
 current_time() {
   date +%s
 }
 
-BENCHMARK_DURATION_TIME_MINUTES=30 # 0.5 hour
+# BENCHMARK_DURATION_TIME_MINUTES=30 # 0.5 hour
+BENCHMARK_DURATION_TIME_MINUTES=5 # 5 minutes
 duration=$((BENCHMARK_DURATION_TIME_MINUTES * 60))  # Convert minutes to seconds
 
 start_time=$(current_time)
 while true; do
     # Get the current time
     now=$(current_time)
+
+    # Show times
+    c_time=$(date +"%T")
+    echo "Current time: $c_time"
     
     # Excution with the given parameters
-    ./s3-benchmark-updated -b $BUCKET_NAME \
-                          -a $ACCESS_KEY \
-                          -s $SECRET_KEY \
-                          -t $THREAD_NUM \
-                          -l $LOOP_NUM \
-                          -u $ENDPOINT_URL \
-                          -r $REGION \
-                          -z $FILE_SIZE
-
-    # ./s3-benchmark-supportcase-xxx -b $BUCKET_NAME \
+    # ./s3-benchmark-updated -b $BUCKET_NAME \
     #                       -a $ACCESS_KEY \
     #                       -s $SECRET_KEY \
     #                       -t $THREAD_NUM \
@@ -56,27 +53,53 @@ while true; do
     #                       -r $REGION \
     #                       -z $FILE_SIZE
 
+    ./s3-benchmark-supportcase-xxx -b $BUCKET_NAME \
+                          -a $ACCESS_KEY \
+                          -s $SECRET_KEY \
+                          -t $THREAD_NUM \
+                          -l $LOOP_NUM \
+                          -u $ENDPOINT_URL \
+                          -r $REGION \
+                          -z $FILE_SIZE
+
     # Calculate elapsed time
     elapsed=$((now - start_time))
     # Debug output
-echo "now: $now, start_time: $start_time, elapsed: $elapsed, duration: $duration"
+    echo "now: $now, start_time: $start_time, elapsed: $elapsed, benchmark duration: $duration"
 
     # Check if the duration has passed
-    if [ -n "$elapsed" ] && ([ "$elapsed" -ge "$duration" ] || [ "$elapsed" -eq 0 ])
+    if [ -n "$elapsed" ] && [ "$elapsed" -ge "$duration" ]
     then
         echo "Time's up! Loop finished."
         break
     fi
 
+    echo "sleeping for $duration secs ..."
+    # Show times
+    c_time=$(date +"%T")
+    echo "Current time: $c_time"
     # Wait for the specified duration
     sleep $INTERVAL_SECS
 
+    t=$(current_time)
+    elapsed=$(t - start_time)
     # Your loop logic goes here
     echo "Elapsed time: $elapsed seconds"
+    # Show times
     c_time=$(date +"%T")
     echo "Current time: $c_time"
 
     # Optional: Add a small delay to avoid excessive CPU usage
-    sleep 1
+    # sleep 1
 done
 
+
+# Last but not least, let us merge all CSV file in one (name: combined.csv)
+# Pick the first CSV file name
+file=$(ls *.csv | head -n 1)
+
+# Merge CSV files
+# For any, pick the first row as a header
+head -n 1 $file > combined.csv
+# For all, skip the first row which is a header
+tail -n +2 -q *.csv >> combined.csv

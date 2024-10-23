@@ -24,7 +24,7 @@ import (
 
 	//"github.com/pivotal-golang/bytefmt"
 	// Details here: https://github.com/cloudfoundry/bytefmt/blob/main/README.md
-	"io"
+
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -370,52 +370,6 @@ func runOnceUpload(thread_num int) {
 	atomic.AddInt32(&running_threads, -1)
 }
 
-func runOnceDownload(thread_num int) {
-	// No for loop based on the curation of time
-	atomic.AddInt32(&download_count, 1)
-	objnum := rand.Int31n(download_count) + 1
-	prefix := fmt.Sprintf("%s/%s/Object-%d", url_host, bucket, objnum)
-	req, _ := http.NewRequest("GET", prefix, nil)
-	setSignature(req)
-	if resp, err := httpClient.Do(req); err != nil {
-		log.Fatalf("FATAL: Error downloading object %s: %v", prefix, err)
-	} else if resp != nil && resp.Body != nil {
-		if resp.StatusCode == http.StatusServiceUnavailable {
-			atomic.AddInt32(&download_slowdown_count, 1)
-			atomic.AddInt32(&download_count, -1)
-		} else {
-			io.Copy(ioutil.Discard, resp.Body)
-		}
-	}
-
-	// Remember last done time
-	download_finish = time.Now()
-	// One less thread
-	atomic.AddInt32(&running_threads, -1)
-}
-
-func runOnceDelete(thread_num int) {
-	// No for loop based on the curation of time
-	objnum := atomic.AddInt32(&delete_count, 1)
-	if objnum > upload_count {
-		break
-	}
-	prefix := fmt.Sprintf("%s/%s/Object-%d", url_host, bucket, objnum)
-	req, _ := http.NewRequest("DELETE", prefix, nil)
-	setSignature(req)
-	if resp, err := httpClient.Do(req); err != nil {
-		log.Fatalf("FATAL: Error deleting object %s: %v", prefix, err)
-	} else if resp != nil && resp.StatusCode == http.StatusServiceUnavailable {
-		atomic.AddInt32(&delete_slowdown_count, 1)
-		atomic.AddInt32(&delete_count, -1)
-	}
-
-	// Remember last done time
-	delete_finish = time.Now()
-	// One less thread
-	atomic.AddInt32(&running_threads, -1)
-}
-
 func main() {
 	//fmt.Println("Wasabi benchmark program v2.0")
 	fmt.Println("Wasabi benchmark program v2.1 for Support Case XXX")
@@ -427,7 +381,7 @@ func main() {
 	myflag.StringVar(&url_host, "u", "http://s3.wasabisys.com", "URL for host with method prefix")
 	myflag.StringVar(&bucket, "b", "wasabi-benchmark-bucket", "Bucket for testing")
 	myflag.StringVar(&region, "r", "us-east-1", "Region for testing")
-	myflag.IntVar(&duration_secs, "d", 60, "Duration of each test in seconds") # Duration time in secs
+	myflag.IntVar(&duration_secs, "d", 60, "Duration of each test in seconds") // Duration time in secs
 	myflag.IntVar(&threads, "t", 1, "Number of threads to run")
 	myflag.IntVar(&loops, "l", 1, "Number of times to repeat test")
 	var sizeArg string
@@ -508,55 +462,6 @@ func main() {
 		// CSV Upload
 		csvit(fmt.Sprintf("%d,PUT,%.1f,%d,%.1f,%.1f,%d,%s",
 			loop, upload_time, upload_count, bps, float64(upload_count)/upload_time, upload_slowdown_count, region), false)
-
-		// // Run the download case
-		// running_threads = int32(threads)
-		// starttime = time.Now()
-		// endtime = starttime.Add(time.Second * time.Duration(duration_secs))
-		// for n := 1; n <= threads; n++ {
-		// 	// go runDownload(n)
-		// 	go runOnceDownload(n)
-		// }
-
-		// // Wait for it to finish
-		// for atomic.LoadInt32(&running_threads) > 0 {
-		// 	time.Sleep(time.Millisecond)
-		// }
-		// download_time := download_finish.Sub(starttime).Seconds()
-
-		// bps = float64(uint64(download_count)*object_size) / download_time
-		// // log Download
-		// logit(fmt.Sprintf("Loop %d: GET time=%.1f secs, objects %d, speed %s B/sec, %.1f operations/sec., Slowdowns=%d",
-		// 	loop, download_time, download_count, bytefmt.ByteSize(uint64(bps)), float64(download_count)/download_time, download_slowdown_count))
-		// //logit(fmt.Sprintf("%d,GET,%.1f,%d,%s,%.1f,%d,%s",
-		// //	loop, download_time, download_count, bytefmt.ByteSize(uint64(bps)), float64(download_count)/download_time, download_slowdown_count, region), false)
-		// // CSV Download
-		// csvit(fmt.Sprintf("%d,GET,%.1f,%d,%.1f,%.1f,%d,%s",
-		// 	loop, download_time, download_count, bps, float64(download_count)/download_time, download_slowdown_count, region), false)
-
-		// // Run the delete case
-		// running_threads = int32(threads)
-		// starttime = time.Now()
-		// endtime = starttime.Add(time.Second * time.Duration(duration_secs))
-		// for n := 1; n <= threads; n++ {
-		// 	// go runDelete(n)
-		// 	go runOnceDelete(n)
-		// }
-
-		// // Wait for it to finish
-		// for atomic.LoadInt32(&running_threads) > 0 {
-		// 	time.Sleep(time.Millisecond)
-		// }
-		// delete_time := delete_finish.Sub(starttime).Seconds()
-
-		// // log Delete
-		// logit(fmt.Sprintf("Loop %d: DELETE time=%.1f secs, %.1f deletes/sec., Slowdowns=%d",
-		// 	loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count))
-		// //logit(fmt.Sprintf("Loop %d,DELETE time,%.1f,secs,,,,,,%.1f,deletes/sec.,Slowdowns,%d",
-		// //	loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count), false)
-		// // CSV Delete
-		// csvit(fmt.Sprintf("%d,DELETE,%.1f,,,%.1f,%d,%s",
-		// 	loop, delete_time, float64(upload_count)/delete_time, delete_slowdown_count, region), false)
 
 	}
 	// Delete the bucket created for the benchmark
