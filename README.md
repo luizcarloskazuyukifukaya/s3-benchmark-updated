@@ -85,7 +85,14 @@ The CSV file name is created based on the region, date and time with the followi
 ```
 benchmark_<REGION_NAME>_<yyyymmddThhmmss>.csv
 ```
-The log file and CSV file should be the same except the file extension.
+The CSV file is modified to only includes data for analytics.
+
+# Data Visualization
+A Python program is provided so it can generate a visual output as the result of the benchmark. 
+
+(NOTE) For now, the dataset used is based on the support case XXX, and you need to modify based on your benchmark use case.
+
+![S3 Benchmark Visualization Example Image](s3-benchmark-results_20241024_075823.png.png "This is an example image")
 
 # Note
 This version is *NOT* provided officially from Wasabi Technologies LLC, so if you have an issue, it is recommended to try execute the original version first. If still you have the issue, please contact Wasabi technical support (support@wasabi.com).
