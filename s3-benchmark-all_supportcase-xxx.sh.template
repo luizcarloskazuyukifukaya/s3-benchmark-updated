@@ -6,8 +6,8 @@
 BUCKET_NAME=s3-benchmark-bucket-$RANDOM
 
 # Access Key
-ACCESS_KEY=N4X1J2JLPP929K2VCLPH
-SECRET_KEY=gRKU0BNsUOW9qZ73BDCOTUKz8CPblnDXlVeXCkTR
+ACCESS_KEY=<Access Key>
+SECRET_KEY=<Secret Key>
 
 # Number of threads
 THREAD_NUM=1
@@ -23,15 +23,15 @@ FILE_SIZE=1M
 LOOP_NUM=1
 
 # Interval seconds
-INTERVAL_SECS=60 #(1 minutes)
-#INTERVAL_SECS=180 #(3 minutes)
+#INTERVAL_SECS=60 #(1 minutes)
+INTERVAL_SECS=180 #(3 minutes)
 
 current_time() {
   date +%s
 }
 
-# BENCHMARK_DURATION_TIME_MINUTES=30 # 0.5 hour
-BENCHMARK_DURATION_TIME_MINUTES=5 # 5 minutes
+BENCHMARK_DURATION_TIME_MINUTES=30 # 0.5 hour
+#BENCHMARK_DURATION_TIME_MINUTES=5 # 5 minutes
 duration=$((BENCHMARK_DURATION_TIME_MINUTES * 60))  # Convert minutes to seconds
 
 start_time=$(current_time)
@@ -41,7 +41,7 @@ while true; do
 
     # Show times
     c_time=$(date +"%T")
-    echo "Current time: $c_time"
+    echo "[START] Current time: $c_time"
     
     # Excution with the given parameters
     # ./s3-benchmark-updated -b $BUCKET_NAME \
@@ -74,7 +74,7 @@ while true; do
         break
     fi
 
-    echo "sleeping for $duration secs ..."
+    echo "sleeping for $INTERVAL_SECS secs ..."
     # Show times
     c_time=$(date +"%T")
     echo "Current time: $c_time"
@@ -82,7 +82,7 @@ while true; do
     sleep $INTERVAL_SECS
 
     t=$(current_time)
-    elapsed=$(t - start_time)
+    elapsed=$((t - start_time))
     # Your loop logic goes here
     echo "Elapsed time: $elapsed seconds"
     # Show times
@@ -103,3 +103,5 @@ file=$(ls *.csv | head -n 1)
 head -n 1 $file > combined.csv
 # For all, skip the first row which is a header
 tail -n +2 -q *.csv >> combined.csv
+
+rm benchmark_*.csv
