@@ -9,6 +9,7 @@ def generate_default_filename():
     current_datetime = datetime.now()
     return current_datetime.strftime("s3-benchmark-results_%Y%m%d_%H%M%S.png")
 
+# Parameter check
 # Check if a command-line argument was provided
 if len(sys.argv) > 1:
     csv_filename = sys.argv[1]
